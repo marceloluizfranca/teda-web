@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TEDA - Realtime</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+    <!-- <script type="text/javascript" src="Chart.js"></script>
+    <script type="text/javascript" src="moment.js"></script>
+    <script type="text/javascript" src="chartjs-plugin-streaming.js"></script>
+    -->
+ 
+
+</head>
+<body>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/moment@2.24.0/min/moment.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-streaming@1.8.0"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.bundle.js"></script>
+
+    <canvas id="myChart"></canvas>
+    <div class="messages"></div>
+
+    <script type="text/javascript">
+
+        var socket = io('http://187.95.224.44:3000');
+        var zeta = [];
+        var threshold = [];
+        var time = [];
+        var count = 0;
+        socket.on('message', function(message) {
+             //console.log(message);
+             zeta.push (message.zeta);
+             threshold.push(message.threshold)
+             time.push(count * 30)
+             count = count + 1
+             
+            grafico(zeta, threshold, time);
+
+            //$('.messages').append('zeta: ' + message.zeta + '- threshold: ' + message.threshold + '<br>');
+        });
+
+        
+
+        function grafico(z, t, m) {
+
+        var ctx = document.getElementById('myChart').getContext('2d');
+        var chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: m,
+                datasets: [{
+                    label: 'Zeta',
+                    backgroundColor: ['Blue'],
+                    borderColor: ['Blue'],
+                    fill: false,
+                    data: z
+                },{
+                    label: 'Threshold',
+                    backgroundColor: ['Red'],
+                    borderColor: ['Red'],
+                    fill: false,
+                    data: t
+                }
+            
+            ]
+            },
+            options: {
+                title: {
+                    display: true,
+                    text: 'Typicality and Eccentricity Data Analysis'
+                },
+                elements: {
+                    line: {
+                        tension: 0 // disables bezier curves
+                    }
+                },
+                scales: {
+                    yAxes: [{
+                        type: 'logarithmic',
+                        scaleLabel: {
+							display: true,
+							labelString: 'Entropy'
+						}
+                    }],
+                    xAxes: [{
+                        scaleLabel: {
+							display: true,
+							labelString: 'Time in seconds'
+						}
+                    }]
+                }
+            }
+        
+        });
+        };
+
+    </script>
+
+</body>
+</html>
